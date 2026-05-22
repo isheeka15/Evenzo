@@ -1,0 +1,14 @@
+- [x] Verify that the copilot-instructions.md file in the .github directory is created.
+- [ ] Verify that README.md exists and contains current project information.
+- [ ] Clarify project requirements with the user if needed.
+- [ ] Scaffold or review the existing project structure.
+- [ ] Customize the project to match the user request.
+- [ ] Install required extensions only if explicitly specified.
+- [ ] Compile or build the project successfully.
+- [ ] Create and run a development or debug task.
+- [ ] Launch the project to confirm it starts correctly.
+- [ ] Ensure documentation is complete and current.
+
+- Work through each checklist item systematically.
+- Keep communication concise and focused.
+- Follow development best practices.
