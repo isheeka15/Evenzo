@@ -1,13 +1,11 @@
 import api from './api';
 
 export const eventService = {
-  // Get all events
   getEvents: async (params = {}) => {
     const response = await api.get('/events', { params });
     return response.data;
   },
 
-  // Get single event
   getEvent: async (id) => {
     const response = await api.get(`/events/${id}`);
     return response.data;

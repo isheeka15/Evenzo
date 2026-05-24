@@ -123,7 +123,7 @@ const UserDashboard = () => {
                 if (!reg.event) return null;
                 const ev = reg.event;
                 const isUpcoming = new Date(ev.eventDate) > new Date();
-                const bannerSrc = ev.bannerUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80';
+                const bannerSrc = ev.image || ev.bannerUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80';
 
                 return (
                   <div key={reg._id} className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200">

@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const { seedInitialEvents } = require('./utils/seedData');
 
@@ -23,6 +24,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/register', registrationRoutes);
+app.use('/api/bookings', bookingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 app.use(notFound);

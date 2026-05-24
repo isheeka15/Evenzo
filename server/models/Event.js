@@ -10,6 +10,7 @@ const eventSchema = new mongoose.Schema(
     eventDate: { type: Date, required: true },
     startTime: { type: String, required: true },
     price: { type: Number, required: true, default: 0 },
+    image: { type: String, default: '' },
     bannerUrl: { type: String, default: '' },
     organizerName: { type: String, required: true },
     organizerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

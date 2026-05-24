@@ -1,5 +1,6 @@
 const path = require('path');
 const Event = require('../models/Event');
+const { getDefaultImageByCategory } = require('../utils/imageDefaults');
 
 const getEvents = async (req, res) => {
   const { search, category, city, date, free, mine } = req.query;
@@ -78,9 +79,9 @@ const createEvent = async (req, res) => {
     }
   }
 
-  const bannerUrl = req.file
+  const imageSource = req.file
     ? `/uploads/${req.file.filename}`
-    : imageUrl || '';
+    : imageUrl || getDefaultImageByCategory(category, title);
 
   const event = await Event.create({
     title,
@@ -93,7 +94,8 @@ const createEvent = async (req, res) => {
     price: Number(price) || 0,
     capacity: Number(capacity) || 200,
     tags: parsedTags,
-    bannerUrl,
+    image: imageSource,
+    bannerUrl: imageSource,
     organizerName: req.user.name,
     organizerId: req.user._id,
     published: published !== 'false',
@@ -120,7 +122,16 @@ const updateEvent = async (req, res) => {
   };
 
   if (req.file) {
-    updatedFields.bannerUrl = `/uploads/${req.file.filename}`;
+    const uploadedImage = `/uploads/${req.file.filename}`;
+    updatedFields.image = uploadedImage;
+    updatedFields.bannerUrl = uploadedImage;
+  } else if (req.body.imageUrl) {
+    updatedFields.image = req.body.imageUrl;
+    updatedFields.bannerUrl = req.body.imageUrl;
+  } else if (!event.image) {
+    const newCategory = req.body.category || event.category;
+    updatedFields.image = getDefaultImageByCategory(newCategory, req.body.title || event.title);
+    updatedFields.bannerUrl = updatedFields.image;
   }
 
   const updatedEvent = await Event.findByIdAndUpdate(req.params.id, updatedFields, {

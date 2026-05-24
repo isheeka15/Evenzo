@@ -178,7 +178,7 @@ const OrganizerDashboard = () => {
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {myEvents.map((event) => {
                     const isUpcoming = new Date(event.eventDate) > new Date();
-                    const bannerSrc = event.bannerUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=200&q=60';
+                    const bannerSrc = event.image || event.bannerUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=200&q=60';
                     return (
                       <tr key={event._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
                         <td className="px-6 py-4">
