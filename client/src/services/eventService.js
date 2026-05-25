@@ -1,9 +1,22 @@
 import api from './api';
+import { events as fallbackEvents } from '../data/events';
+
+const normalizeEventsResponse = (data) => {
+  const eventsArray = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.events)
+    ? data.events
+    : Array.isArray(data?.data)
+    ? data.data
+    : [];
+
+  return eventsArray.length > 0 ? eventsArray : fallbackEvents;
+};
 
 export const eventService = {
   getEvents: async (params = {}) => {
     const response = await api.get('/events', { params });
-    return response.data;
+    return normalizeEventsResponse(response.data);
   },
 
   getEvent: async (id) => {

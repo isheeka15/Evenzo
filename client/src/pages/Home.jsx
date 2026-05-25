@@ -25,8 +25,16 @@ const Home = () => {
   const fetchFeaturedEvents = async () => {
     try {
       setLoading(true);
-      const data = await eventService.getEvents();
-      setFeaturedEvents(data.slice(0, 3));
+      const response = await eventService.getEvents();
+      const eventsArray = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.events)
+        ? response.events
+        : Array.isArray(response?.data)
+        ? response.data
+        : [];
+
+      setFeaturedEvents(eventsArray.slice(0, 3));
     } catch (error) {
       console.error('Error fetching events:', error);
       setFeaturedEvents([]);
@@ -165,10 +173,13 @@ const Home = () => {
             <div className="flex justify-center py-12">
               <Loader />
             </div>
-          ) : featuredEvents.length > 0 ? (
+          ) : Array.isArray(featuredEvents) && featuredEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {featuredEvents.map((event) => (
-                <EventCard key={event._id || event.id} event={event} />
+                <EventCard
+                  key={event._id || event.id}
+                  event={event}
+                />
               ))}
             </div>
           ) : (

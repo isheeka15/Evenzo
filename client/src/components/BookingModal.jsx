@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { FaCcVisa, FaCreditCard, FaMoneyBillWave, FaRupeeSign, FaTimes, FaUniversity } from 'react-icons/fa';
+import React, { useMemo, useState, useEffect } from 'react';
+import { FaCcVisa, FaCreditCard, FaMoneyBillWave, FaTimes, FaUniversity } from 'react-icons/fa';
 import { formatPrice } from '../utils/appConfig';
 
 const PAYMENT_METHODS = [
@@ -20,6 +20,13 @@ const BookingModal = ({ event, open, onClose, onConfirm, loading, message }) => 
     bank: '',
   });
 
+  useEffect(() => {
+    if (!open) return;
+    setQuantity(1);
+    setPaymentMethod(event.price === 0 ? 'free' : 'upi');
+    setPaymentDetails({ upiId: '', cardNumber: '', expiry: '', cvv: '', bank: '' });
+  }, [open, event.price]);
+
   const availableSeats = Math.max((event.capacity || event.maxAttendees || 1) - (event.attendees || 0), 1);
   const maxQuantity = Math.min(availableSeats, 6);
 
@@ -31,7 +38,24 @@ const BookingModal = ({ event, open, onClose, onConfirm, loading, message }) => 
     setPaymentDetails(prev => ({ ...prev, [key]: value }));
   };
 
+  const isPaymentValid = () => {
+    if (event.price === 0) return true;
+    if (paymentMethod === 'upi') {
+      return paymentDetails.upiId.trim().length > 0;
+    }
+    if (paymentMethod === 'credit_card' || paymentMethod === 'debit_card') {
+      return paymentDetails.cardNumber.trim().length >= 12 && paymentDetails.expiry.trim().length > 0 && paymentDetails.cvv.trim().length >= 3;
+    }
+    if (paymentMethod === 'net_banking') {
+      return paymentDetails.bank.trim().length > 0;
+    }
+    return false;
+  };
+
   const handleSubmit = () => {
+    if (!isPaymentValid()) {
+      return;
+    }
     const bookingData = {
       paymentMethod: event.price === 0 ? 'free' : paymentMethod,
       quantity,
@@ -45,8 +69,8 @@ const BookingModal = ({ event, open, onClose, onConfirm, loading, message }) => 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
-      <div className="w-full max-w-2xl rounded-[2rem] bg-white dark:bg-slate-950 border border-white/10 shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-slate-200/80 dark:border-slate-800">
+      <div className="w-full max-w-2xl rounded-[2rem] bg-white dark:bg-slate-950 border border-white/10 shadow-2xl overflow-hidden max-h-[calc(100vh-4rem)] flex flex-col">
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-200/80 dark:border-slate-800">
           <div>
             <p className="text-sm uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Secure Booking</p>
             <h2 className="text-2xl font-bold text-slate-950 dark:text-white">{event.title}</h2>
@@ -56,7 +80,7 @@ const BookingModal = ({ event, open, onClose, onConfirm, loading, message }) => 
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="overflow-y-auto px-6 py-6 space-y-6">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-3xl bg-slate-50 dark:bg-slate-900 p-5">
               <p className="text-sm text-slate-500 dark:text-slate-400">Ticket amount</p>
@@ -172,22 +196,27 @@ const BookingModal = ({ event, open, onClose, onConfirm, loading, message }) => 
               {message}
             </div>
           )}
+        </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 mt-6">
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full rounded-3xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4 text-white font-semibold shadow-xl shadow-purple-500/20 transition hover:from-purple-700 hover:to-blue-700 disabled:opacity-60"
-            >
-              {loading ? 'Processing...' : event.price === 0 ? 'Confirm Free Registration' : 'Confirm Payment'}
-            </button>
-            <button
-              onClick={onClose}
-              className="w-full rounded-3xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4 text-slate-700 dark:text-slate-200 font-semibold transition hover:bg-slate-100 dark:hover:bg-slate-800"
-            >
-              Cancel
-            </button>
+        <div className="sticky bottom-0 left-0 z-10 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl p-4 flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex-1 text-sm text-slate-600 dark:text-slate-300">
+            {event.price === 0
+              ? 'Confirm your registration and save your ticket instantly in your dashboard.'
+              : 'Review your payment details and confirm booking to save tickets in your dashboard.'}
           </div>
+          <button
+            onClick={handleSubmit}
+            disabled={loading || !isPaymentValid()}
+            className="w-full sm:w-auto rounded-3xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4 text-white font-semibold shadow-xl shadow-purple-500/20 transition hover:from-purple-700 hover:to-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Processing...' : event.price === 0 ? 'Confirm Booking' : 'Pay & Book Ticket'}
+          </button>
+          <button
+            onClick={onClose}
+            className="w-full sm:w-auto rounded-3xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4 text-slate-700 dark:text-slate-200 font-semibold transition hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>

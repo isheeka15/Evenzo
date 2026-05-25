@@ -6,6 +6,8 @@ import SearchBar from '../components/SearchBar';
 import FilterSection from '../components/FilterSection';
 import Loader from '../components/Loader';
 
+import { events as fallbackEvents } from '../data/events';
+
 const Events = () => {
   const [searchParams] = useSearchParams();
   const [events, setEvents] = useState([]);
@@ -23,12 +25,15 @@ const Events = () => {
     try {
       setLoading(true);
       const data = await eventService.getEvents();
-      setEvents(data);
-      const uniqueCategories = ['All', ...new Set(data.map(event => event.category))];
+      const eventsArray = Array.isArray(data) ? data : fallbackEvents;
+      setEvents(eventsArray);
+      const uniqueCategories = ['All', ...new Set(eventsArray.map((event) => event.category))];
       setCategories(uniqueCategories);
     } catch (error) {
       console.error('Error fetching events:', error);
-      setEvents([]);
+      setEvents(fallbackEvents);
+      const uniqueCategories = ['All', ...new Set(fallbackEvents.map((event) => event.category))];
+      setCategories(uniqueCategories);
     } finally {
       setLoading(false);
     }

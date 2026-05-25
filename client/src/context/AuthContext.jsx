@@ -4,17 +4,35 @@ import api from '../services/api';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('evenzo_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [loading, setLoading] = useState(() => !!localStorage.getItem('token'));
 
-  // On mount, restore user from localStorage
-  useEffect(() => {
-    const storedUser = localStorage.getItem('evenzo_user');
+  const restoreSession = async () => {
     const storedToken = localStorage.getItem('token');
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
+    if (!storedToken) {
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    try {
+      const response = await api.get('/auth/profile');
+      const profile = response.data;
+      setUser(profile);
+      localStorage.setItem('evenzo_user', JSON.stringify(profile));
+    } catch (error) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('evenzo_user');
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    restoreSession();
   }, []);
 
   const login = async (email, password) => {
@@ -37,7 +55,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = async (name, email, password, role = 'user') => {
-    const response = await api.post('/auth/register', { name, email, password, role });
+    let response;
+    try {
+      response = await api.post('/auth/register', { name, email, password, role });
+    } catch (error) {
+      if (error.response?.status === 404) {
+        response = await api.post('/auth/signup', { name, email, password, role });
+      } else {
+        throw error;
+      }
+    }
+
     const userData = response.data;
     localStorage.setItem('token', userData.token);
     localStorage.setItem('evenzo_user', JSON.stringify({

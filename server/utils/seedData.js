@@ -93,6 +93,48 @@ const events = [
     capacity: 150,
     tags: ['AI', 'Workshop', 'Skills'],
     published: true,
+  },
+  {
+    title: 'Chennai Food Carnival',
+    description: 'A street food celebration featuring local delicacies, chef demos, and live music by the beach.',
+    category: 'Food',
+    city: 'Chennai',
+    location: 'Marina Beach Plaza',
+    eventDate: new Date('2026-07-15T17:00:00+05:30'),
+    startTime: '5:00 PM',
+    price: 12,
+    image: 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?auto=format&fit=crop&w=1200&q=80',
+    capacity: 1300,
+    tags: ['Food', 'Culture', 'Live Music'],
+    published: true,
+  },
+  {
+    title: 'Hyderabad Wellness Retreat',
+    description: 'A relaxing wellness retreat with yoga, healthy cooking, and mindfulness sessions.',
+    category: 'Health',
+    city: 'Hyderabad',
+    location: 'Hussain Sagar Gardens',
+    eventDate: new Date('2026-08-10T08:00:00+05:30'),
+    startTime: '8:00 AM',
+    price: 18,
+    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
+    capacity: 250,
+    tags: ['Wellness', 'Yoga', 'Health'],
+    published: true,
+  },
+  {
+    title: 'Goa Beach Festival',
+    description: 'Sunset performances, beachside parties, and seafood tastings at India’s most vibrant coastline festival.',
+    category: 'Festival',
+    city: 'Goa',
+    location: 'Calangute Beach Arena',
+    eventDate: new Date('2026-09-05T16:00:00+05:30'),
+    startTime: '4:00 PM',
+    price: 30,
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+    capacity: 2200,
+    tags: ['Beach', 'Music', 'Party'],
+    published: true,
   }
 ];
 
@@ -113,16 +155,23 @@ const seedInitialEvents = async () => {
       organizer = existingOrganizer;
     }
 
-    const count = await Event.countDocuments();
-    if (count === 0) {
-      const eventsWithOrganizer = events.map((item) => ({
+    const existingEvents = await Event.find({ organizerId: organizer._id }).select('title').lean();
+    const existingTitles = new Set(existingEvents.map((evt) => evt.title));
+
+    const eventsWithOrganizer = events
+      .filter((item) => !existingTitles.has(item.title))
+      .map((item) => ({
         ...item,
         organizerName: organizer.name,
         organizerId: organizer._id,
         bannerUrl: item.image || item.bannerUrl || '',
       }));
+
+    if (eventsWithOrganizer.length > 0) {
       await Event.insertMany(eventsWithOrganizer);
-      console.log('Seeded default events for Evenzo');
+      console.log(`Seeded ${eventsWithOrganizer.length} new default events for Evenzo`);
+    } else {
+      console.log('No new events to seed. Existing default events are already present.');
     }
   } catch (error) {
     console.error('Seed data error:', error.message);

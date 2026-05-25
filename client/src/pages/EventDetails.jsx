@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaArrowLeft, FaShare, FaTicketAlt, FaUserTie } from 'react-icons/fa';
+import { FaUsers, FaArrowLeft, FaShare, FaTicketAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { eventService } from '../services/eventService';
 import { bookingService } from '../services/bookingService';
@@ -89,7 +89,7 @@ const EventDetails = () => {
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <div className="text-center px-4">
           <h1 className="text-4xl font-bold text-slate-950 dark:text-white mb-4">Event Not Found</h1>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">The event you're looking for doesn't exist.</p>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">The event you&apos;re looking for doesn&apos;t exist.</p>
           <Link to="/events" className="bg-purple-600 text-white px-6 py-3 rounded-full hover:bg-purple-700 transition-colors duration-200">
             Browse Events
           </Link>
